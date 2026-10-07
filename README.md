@@ -12,7 +12,7 @@
 
 ```
 backend/   Spring Boot 3 + Spring Batch + JDBC + PostgreSQL（全部 BigDecimal）
-frontend/  Angular 18：事件时间轴 / 批次来源 / 现金权益 / 账实差异与日终发布
+frontend/  Angular 18：事件时间轴 / 批次来源 / 现金权益 / 配股核对 / 账实差异与日终发布
 samples/   五个验收场景的样例 CSV
 ```
 
@@ -51,6 +51,17 @@ CSV(并发/重复文件)
 `application.yml` 中可配：股数 8 位、价格 6 位、现金 2 位、批次单位成本 6 位，全部独立舍入；
 成本结转以现金精度（分）为事实值，部分卖出批次的舍入尾差留在本批次，不跨批泄漏。
 
+### 配股资格与认购核对（只读）
+
+`GET /api/accounts/{accountId}/rights-reconciliation` 把同一配股事件的四个来源关联成一行：
+应得（登记日资格 `projection_entitlement`）、已认（认购事件载荷 `subscribedQty`）、
+已扣款（支付日现金行 `RIGHTS_PAYMENT`）、已到账（到账日新成本批次 `L{id}:ALLOT`），
+并给出未认购量（应得 − 已认）与来源事件/效应键/批次键。前端“配股核对”页支持逐笔展开
+查看来源明细，并可导出 CSV（合计行与页面完全一致）。
+
+核对严格只读：不触发重放、不改写投影；支付日现金行入账前“已扣款”为 0（现金不减少），
+到账日前“已到账”为 0（未到账股份不计入持仓）；没有资格的账户不出现任何可认购额度。
+
 ## 验收场景（逐笔）
 
 1. **跨登记日买卖** `samples/scenario1-cross-record.csv`
@@ -84,6 +95,7 @@ cd backend && mvn spring-boot:run
 
 界面操作：选账户（样例账户 SC1/SC2/SC3）→ 上传 `samples/*.csv` → “崩溃恢复重放”
 → 日终页选业务日 → 准备草稿 → 运行核对 → （可选录入对账单制造账实差异）→ 确认发布。
+“配股核对”页查看每笔配股的 应得/已认/未认购/已扣款/已到账 及来源事件，可逐笔展开、导出 CSV。
 
 ## 测试
 
@@ -91,5 +103,5 @@ cd backend && mvn spring-boot:run
 cd backend && mvn test
 ```
 
-17 个测试：8 个纯函数核算（FoldEngine）、3 个三方守恒/账实（Reconciliator）、
-6 个真实嵌入式 PostgreSQL 端到端（不可变账本、并发幂等导入、崩溃续放、日终阻断、迟到成交）。
+20 个测试：8 个纯函数核算（FoldEngine）、3 个三方守恒/账实（Reconciliator）、
+9 个真实嵌入式 PostgreSQL 端到端（不可变账本、并发幂等导入、崩溃续放、日终阻断、迟到成交、配股认购核对）。

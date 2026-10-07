@@ -3,7 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import {
   BusinessEvent, CashEntry, Checkpoint, Cursor, Entitlement, Lot,
-  ReconciliationReport
+  ReconciliationReport, RightsReconciliation
 } from './models';
 
 @Injectable({ providedIn: 'root' })
@@ -27,6 +27,11 @@ export class LedgerApi {
 
   entitlements(account: string): Observable<Entitlement[]> {
     return this.http.get<Entitlement[]>(`${this.base}/accounts/${account}/entitlements`);
+  }
+
+  rightsReconciliation(account: string): Observable<RightsReconciliation> {
+    return this.http.get<RightsReconciliation>(
+      `${this.base}/accounts/${account}/rights-reconciliation`);
   }
 
   checkpoints(account: string): Observable<Checkpoint[]> {

@@ -60,6 +60,69 @@ export interface Entitlement {
   subscribedQty: string;
 }
 
+/** 配股核对：支付日现金行（已扣款）。 */
+export interface RightsPaymentLine {
+  eventId: number;
+  effectKey: string;
+  valueDate: string;
+  direction: string;
+  amount: string;
+  idemKey: string;
+}
+
+/** 配股核对：到账日新成本批次（已到账）。 */
+export interface RightsAllotmentLine {
+  lotKey: string;
+  openingEventId: number;
+  acquiredDate: string;
+  openQty: string;
+  remainingQty: string;
+  unitCost: string;
+  totalCost: string;
+  remainingCost: string;
+  fractional: boolean;
+}
+
+/** 配股核对行：同一配股事件的 应得/已认/未认购/已扣款/已到账 及来源事件。 */
+export interface RightsReconciliationRow {
+  rightsEventId: number;
+  instrument: string;
+  exDate: string;
+  recordDate: string;
+  paymentDate: string | null;
+  allotmentDate: string | null;
+  rightsPerShare: string;
+  subscriptionPrice: string;
+  currency: string;
+  eligibleQty: string;
+  subscribedQty: string;
+  unsubscribedQty: string;
+  expectedPayment: string;
+  status: string;
+  entitlementKey: string;
+  payments: RightsPaymentLine[];
+  paidAmount: string;
+  allotments: RightsAllotmentLine[];
+  allottedQty: string;
+  allottedCost: string;
+}
+
+export interface RightsReconciliationTotals {
+  eligibleQty: string;
+  subscribedQty: string;
+  unsubscribedQty: string;
+  expectedPayment: string;
+  paidAmount: string;
+  allottedQty: string;
+  allottedCost: string;
+}
+
+export interface RightsReconciliation {
+  accountId: string;
+  rows: RightsReconciliationRow[];
+  totals: RightsReconciliationTotals;
+}
+
 export interface Checkpoint {
   eventId: number;
   effectKey: string;

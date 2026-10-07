@@ -7,6 +7,8 @@ import com.investclass.ledger.ledger.EventRepository;
 import com.investclass.ledger.projection.ProjectionService;
 import com.investclass.ledger.projection.store.ProjectionCursorRepository;
 import com.investclass.ledger.projection.store.ProjectionReadRepository;
+import com.investclass.ledger.rights.RightsReconciliation;
+import com.investclass.ledger.rights.RightsReconciliationService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,15 +28,18 @@ public class LedgerController {
     private final ProjectionService projection;
     private final EodService eod;
     private final com.investclass.ledger.eod.SnapshotRepository snapshots;
+    private final RightsReconciliationService rightsRecon;
 
     public LedgerController(EventRepository events, ProjectionReadRepository read,
                             ProjectionService projection, EodService eod,
-                            com.investclass.ledger.eod.SnapshotRepository snapshots) {
+                            com.investclass.ledger.eod.SnapshotRepository snapshots,
+                            RightsReconciliationService rightsRecon) {
         this.events = events;
         this.read = read;
         this.projection = projection;
         this.eod = eod;
         this.snapshots = snapshots;
+        this.rightsRecon = rightsRecon;
     }
 
     /** 事件时间轴（不可变事实流）。 */
@@ -63,6 +68,16 @@ public class LedgerController {
     public List<ProjectionReadRepository.EntitlementRow> entitlements(
             @PathVariable String accountId) {
         return read.entitlements(accountId);
+    }
+
+    /**
+     * 配股资格与认购核对（只读）：按配股事件关联登记日资格、认购事件、
+     * 支付日现金行与到账日新成本批次，返回数量、金额、未认购量及来源事件。
+     * 不改变投影，未到账股份不计入持仓；无资格账户返回空行。
+     */
+    @GetMapping("/api/accounts/{accountId}/rights-reconciliation")
+    public RightsReconciliation rightsReconciliation(@PathVariable String accountId) {
+        return rightsRecon.reconcile(accountId);
     }
 
     @GetMapping("/api/accounts/{accountId}/checkpoints")
