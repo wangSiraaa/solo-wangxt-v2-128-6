@@ -176,6 +176,15 @@ public class EventRepository {
                 rowMapper());
     }
 
+    /** 账户全部配股事件（配股核对页主行，按登记日/事件顺序排列）。账本只读。 */
+    public List<Event> rightsOffers(String accountId) {
+        return jdbc.query("""
+                SELECT * FROM business_event
+                WHERE account_id = :a AND event_type = 'RIGHTS_OFFER'
+                ORDER BY record_date, id
+                """, new MapSqlParameterSource("a", accountId), rowMapper());
+    }
+
     public List<Event> timeline(String accountId, LocalDate from, LocalDate to) {
         var p = new MapSqlParameterSource("a", accountId)
                 .addValue("from", from, java.sql.Types.DATE).addValue("to", to, java.sql.Types.DATE);

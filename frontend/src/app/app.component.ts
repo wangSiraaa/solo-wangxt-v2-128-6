@@ -4,21 +4,22 @@ import { FormsModule } from '@angular/forms';
 import { LedgerApi } from './ledger-api.service';
 import {
   BusinessEvent, CashEntry, Checkpoint, Cursor, Entitlement, Lot,
-  ReconciliationReport
+  ReconciliationReport, RightsCheckReport
 } from './models';
 import { TimelineComponent } from './timeline.component';
 import { LotsComponent } from './lots.component';
 import { CashEntitlementsComponent } from './cash-entitlements.component';
 import { ReconciliationComponent } from './reconciliation.component';
+import { RightsCheckComponent } from './rights-check.component';
 
-type Tab = 'timeline' | 'lots' | 'cash' | 'eod';
+type Tab = 'timeline' | 'lots' | 'cash' | 'rights' | 'eod';
 
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [
     CommonModule, FormsModule, TimelineComponent, LotsComponent,
-    CashEntitlementsComponent, ReconciliationComponent
+    CashEntitlementsComponent, ReconciliationComponent, RightsCheckComponent
   ],
   templateUrl: './app.component.html'
 })
@@ -36,6 +37,7 @@ export class AppComponent implements OnInit {
   lots: Lot[] = [];
   cash: CashEntry[] = [];
   entitlements: Entitlement[] = [];
+  rightsReport: RightsCheckReport | null = null;
   checkpoints: Checkpoint[] = [];
   cursor: Cursor | null = null;
   cashBalance = '0.00';
@@ -86,6 +88,9 @@ export class AppComponent implements OnInit {
     });
     this.api.entitlements(this.account).subscribe({
       next: (v) => (this.entitlements = v), error: (e) => this.fail(e)
+    });
+    this.api.rightsCheck(this.account).subscribe({
+      next: (v) => (this.rightsReport = v), error: (e) => this.fail(e)
     });
     this.api.checkpoints(this.account).subscribe({
       next: (v) => (this.checkpoints = v), error: (e) => this.fail(e)

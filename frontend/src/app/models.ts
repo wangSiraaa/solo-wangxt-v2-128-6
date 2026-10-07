@@ -106,3 +106,57 @@ export interface ReconciliationReport {
   projectedCash: string;
   externalCash: string | null;
 }
+
+/** 配股核对：一笔配股在四个业务日的来源定位（环节 + 事件/效应/批次键 + 发生日）。 */
+export interface RightsCheckRef {
+  stage: string;
+  eventId: number | null;
+  effectKey: string | null;
+  effectiveDate: string | null;
+  key: string;
+  detail: string;
+}
+
+/** 配股资格与认购核对逐笔行（只读，未到支付/到账阶段时对应字段为 null）。 */
+export interface RightsCheckRow {
+  rightsEventId: number;
+  accountId: string;
+  instrument: string;
+  announceDate: string;
+  recordDate: string;
+  paymentDate: string | null;
+  allotmentDate: string | null;
+  rightsPerShare: string;
+  subscriptionPrice: string;
+  currency: string;
+  status: string;
+  eligibleQty: string | null;
+  subscribedQty: string;
+  unsubscribedQty: string | null;
+  paidAmount: string | null;
+  allottedQty: string | null;
+  allottedCost: string | null;
+  entitlementProjected: boolean;
+  cashDeducted: boolean;
+  lotArrived: boolean;
+  entitlement: RightsCheckRef | null;
+  subscription: RightsCheckRef | null;
+  payment: RightsCheckRef | null;
+  allotment: RightsCheckRef | null;
+}
+
+export interface RightsCheckTotals {
+  offers: number;
+  eligibleQty: string;
+  subscribedQty: string;
+  unsubscribedQty: string;
+  paidAmount: string;
+  allottedQty: string;
+  allottedCost: string;
+}
+
+export interface RightsCheckReport {
+  accountId: string;
+  rows: RightsCheckRow[];
+  totals: RightsCheckTotals;
+}

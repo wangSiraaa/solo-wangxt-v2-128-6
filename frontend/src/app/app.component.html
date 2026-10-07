@@ -56,6 +56,7 @@
     <button [class.active]="tab()==='timeline'" (click)="setTab('timeline')">事件时间轴</button>
     <button [class.active]="tab()==='lots'" (click)="setTab('lots')">成本批次与来源</button>
     <button [class.active]="tab()==='cash'" (click)="setTab('cash')">现金权益</button>
+    <button [class.active]="tab()==='rights'" (click)="setTab('rights')">配股核对</button>
     <button [class.active]="tab()==='eod'" (click)="setTab('eod')">日终复核与发布</button>
   </div>
 
@@ -99,6 +100,9 @@
           </tbody>
         </table>
       </div>
+    }
+    @case ('rights') {
+      <app-rights-check [report]="rightsReport"></app-rights-check>
     }
     @case ('eod') {
       <div class="panel">
